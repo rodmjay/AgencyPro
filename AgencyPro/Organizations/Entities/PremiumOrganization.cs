@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using AgencyPro.Common.Data.Bases;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AgencyPro.Organizations.Entities
@@ -10,7 +11,11 @@ namespace AgencyPro.Organizations.Entities
 
         public override void Configure(EntityTypeBuilder<PremiumOrganization> builder)
         {
-            throw new System.NotImplementedException();
+            builder
+                .HasOne(x => x.Organization)
+                .WithOne(x => x.PremiumOrganization)
+                .OnDelete(DeleteBehavior.Cascade);
+
         }
     }
 }

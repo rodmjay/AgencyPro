@@ -9,6 +9,7 @@ using AgencyPro.PaymentIntents.Entities;
 using AgencyPro.PayoutIntents.Entities;
 using AgencyPro.Stripe.Interfaces;
 using AgencyPro.Transfers.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AgencyPro.Stripe.Entities
@@ -65,7 +66,58 @@ namespace AgencyPro.Stripe.Entities
         public decimal Subtotal { get; set; }
         public override void Configure(EntityTypeBuilder<StripeInvoice> builder)
         {
-            throw new NotImplementedException();
+            builder.HasKey(x => x.Id);
+            builder.Property(x => x.Id).IsRequired();
+
+            builder.HasQueryFilter(x => x.IsDeleted == false);
+
+            builder.Property(x => x.Total).HasColumnType("Money");
+            builder.Property(x => x.Subtotal).HasColumnType("Money");
+            builder.Property(x => x.AmountRemaining).HasColumnType("Money");
+            builder.Property(x => x.AmountDue).HasColumnType("Money");
+            builder.Property(x => x.AmountPaid).HasColumnType("Money");
+
+            builder.HasOne(x => x.BuyerAccount)
+                .WithMany(x => x.Invoices)
+                .HasForeignKey(x => x.CustomerId);
+
+            builder.HasMany(x => x.Items)
+                .WithOne(x => x.Invoice)
+                .HasForeignKey(x => x.InvoiceId);
+
+            builder.HasOne(x => x.PaymentIntent)
+                .WithOne(x => x.StripeInvoice)
+                .HasForeignKey<StripePaymentIntent>(x => x.InvoiceId);
+
+            builder.HasOne(x => x.ProjectInvoice)
+                .WithOne(x => x.Invoice)
+                .HasForeignKey<ProjectInvoice>(x => x.InvoiceId);
+
+            builder.HasOne(x => x.SubscriptionInvoice)
+                .WithMany(x => x.Invoices)
+                .HasForeignKey(x => x.SubscriptionId);
+
+            builder.HasMany(x => x.Lines)
+                .WithOne(x => x.Invoice)
+                .HasForeignKey(x => x.InvoiceId)
+                .IsRequired();
+
+            builder.HasMany(x => x.Charges)
+                .WithOne(x => x.Invoice)
+                .HasForeignKey(x => x.InvoiceId)
+                .IsRequired();
+
+            builder.HasMany(x => x.IndividualPayoutIntents)
+                .WithOne(x => x.Invoice)
+                .HasForeignKey(x => x.InvoiceId)
+                .IsRequired();
+
+            builder.HasMany(x => x.OrganizationPayoutIntents)
+                .WithOne(x => x.Invoice)
+                .HasForeignKey(x => x.InvoiceId)
+                .IsRequired();
+
+            AddAuditProperties(builder);
         }
     }
 }

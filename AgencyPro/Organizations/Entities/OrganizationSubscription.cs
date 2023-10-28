@@ -16,7 +16,17 @@ namespace AgencyPro.Organizations.Entities
 
         public override void Configure(EntityTypeBuilder<OrganizationSubscription> builder)
         {
-            throw new NotImplementedException();
+            builder.HasOne(x => x.Organization)
+                .WithOne(x => x.OrganizationSubscription)
+                .HasForeignKey<OrganizationSubscription>(x => x.Id)
+                .IsRequired(true);
+
+            builder.HasOne(x => x.StripeSubscription)
+                .WithOne(x => x.OrganizationSubscription)
+                .HasForeignKey<OrganizationSubscription>(x => x.StripeSubscriptionId)
+                .IsRequired(true);
+
+            AddAuditProperties(builder);
         }
     }
 }

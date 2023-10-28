@@ -1,6 +1,5 @@
 ﻿using AgencyPro.BuyerAccounts.Entities;
 using AgencyPro.BuyerAccounts.Models;
-using AgencyPro.OrganizationRoles.Entities;
 using AutoMapper;
 
 namespace AgencyPro.BuyerAccounts.Projections

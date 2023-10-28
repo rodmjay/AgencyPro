@@ -9,9 +9,10 @@ using AgencyPro.Roles.Interfaces;
 using AgencyPro.Skills.Entities;
 using AgencyPro.Stories.Entities;
 using AgencyPro.TimeEntries.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace AgencyPro.Roles.Models
+namespace AgencyPro.Roles.Entities
 {
     public class Contractor : AuditableEntity<Contractor>, IContractor
     {
@@ -37,7 +38,19 @@ namespace AgencyPro.Roles.Models
         public ICollection<ContractorSkill> ContractorSkills { get; set; }
         public override void Configure(EntityTypeBuilder<Contractor> builder)
         {
-            throw new NotImplementedException();
+            builder
+                .HasMany(x => x.OrganizationContractors)
+                .WithOne(x => x.Contractor)
+                .HasForeignKey(x => x.ContractorId);
+
+            builder.HasOne(x => x.Recruiter)
+                .WithMany(x => x.Contractors)
+                .HasForeignKey(x => x.RecruiterId);
+
+            builder.Property(x => x.HoursAvailable)
+                .HasDefaultValue(40);
+
+            AddAuditProperties(builder);
         }
     }
 }

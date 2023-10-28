@@ -16,9 +16,10 @@ using AgencyPro.Projects.Interfaces;
 using AgencyPro.Proposals.Entities;
 using AgencyPro.ProviderOrganizations.Entities;
 using AgencyPro.Retainers.Entities;
-using AgencyPro.Roles.Models;
+using AgencyPro.Roles.Entities;
 using AgencyPro.Stories.Entities;
 using AgencyPro.TimeEntries.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
 
@@ -137,7 +138,97 @@ namespace AgencyPro.Projects.Entities
         public ProjectRetainerIntent ProjectRetainerIntent { get; set; }
         public override void Configure(EntityTypeBuilder<Project> builder)
         {
-            throw new NotImplementedException();
+            builder.HasKey(x => x.Id);
+
+            builder.HasIndex("AccountManagerOrganizationId", "Abbreviation")
+                .HasDatabaseName("ProjectAbbreviationIndex").IsUnique();
+
+            builder.OwnsMany(x => x.StatusTransitions, a =>
+            {
+                a.WithOwner().HasForeignKey(x => x.ProjectId);
+                a.HasKey(x => x.Id);
+                a.Property(x => x.Id).ValueGeneratedOnAdd();
+                a.Ignore(x => x.ObjectState);
+                a.Property(x => x.Created).HasDefaultValueSql("SYSDATETIMEOFFSET()");
+            });
+
+            builder
+                .HasMany(x => x.Stories)
+                .WithOne(x => x.Project)
+                .HasForeignKey(x => x.ProjectId)
+                .IsRequired();
+
+            builder
+                .HasOne(x => x.AccountManager)
+                .WithMany(x => x.Projects)
+                .HasForeignKey(x => x.AccountManagerId)
+                .IsRequired();
+
+            builder
+                .HasOne(x => x.ProjectManager)
+                .WithMany(x => x.Projects)
+                .HasForeignKey(x => x.ProjectManagerId)
+                .IsRequired();
+
+            builder.HasOne(x => x.ProviderOrganization)
+                .WithMany(x => x.Projects)
+                .HasForeignKey(x => x.ProjectManagerOrganizationId)
+                .IsRequired();
+
+            builder.HasMany(x => x.ProjectBillingCategories)
+                .WithOne(x => x.Project)
+                .HasForeignKey(x => x.ProjectId);
+
+            builder.Property(u => u.ConcurrencyStamp).IsConcurrencyToken();
+
+
+            builder.HasQueryFilter(x => x.IsDeleted == false);
+
+            builder
+                .HasOne(x => x.CustomerAccount)
+                .WithMany(x => x.Projects)
+                .HasForeignKey(x => new
+                {
+                    x.CustomerOrganizationId,
+                    x.CustomerId,
+                    x.AccountManagerOrganizationId,
+                    x.AccountManagerId
+                }).IsRequired();
+
+            builder
+                .HasMany(x => x.Invoices)
+                .WithOne(x => x.Project)
+                .HasForeignKey(x => x.ProjectId);
+
+            builder.HasOne(x => x.OrganizationProjectManager)
+                .WithMany(x => x.Projects)
+                .HasForeignKey(x => new
+                {
+                    x.ProjectManagerOrganizationId,
+                    x.ProjectManagerId
+                });
+
+            builder.HasOne(x => x.OrganizationAccountManager)
+                .WithMany(x => x.Projects)
+                .HasForeignKey(x => new
+                {
+                    x.AccountManagerOrganizationId,
+                    x.AccountManagerId
+                });
+
+            builder.HasOne(x => x.OrganizationCustomer)
+                .WithMany(x => x.Projects)
+                .HasForeignKey(x => new
+                {
+                    x.CustomerOrganizationId,
+                    x.CustomerId
+                });
+
+            builder.HasOne(x => x.Customer)
+                .WithMany(x => x.Projects)
+                .HasForeignKey(x => x.CustomerId);
+
+            AddAuditProperties(builder);
         }
     }
 }

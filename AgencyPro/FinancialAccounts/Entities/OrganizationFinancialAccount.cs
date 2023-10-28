@@ -17,7 +17,17 @@ namespace AgencyPro.FinancialAccounts.Entities
 
         public override void Configure(EntityTypeBuilder<OrganizationFinancialAccount> builder)
         {
-            throw new NotImplementedException();
+            builder.HasOne(x => x.Organization)
+                .WithOne(x => x.OrganizationFinancialAccount)
+                .HasForeignKey<OrganizationFinancialAccount>(x => x.Id)
+                .IsRequired(true);
+
+            builder.HasOne(x => x.FinancialAccount)
+                .WithOne(x => x.OrganizationFinancialAccount)
+                .HasForeignKey<OrganizationFinancialAccount>(x => x.FinancialAccountId)
+                .IsRequired(true);
+
+            AddAuditProperties(builder);
         }
     }
 }

@@ -14,7 +14,21 @@ namespace AgencyPro.BillingCategories.Entities
         public BillingCategory BillingCategory { get; set; }
         public override void Configure(EntityTypeBuilder<ProjectBillingCategory> builder)
         {
-            throw new NotImplementedException();
+            builder.HasKey(x => new
+            {
+                x.ProjectId,
+                x.BillingCategoryId
+            });
+
+            builder.HasOne(x => x.Project)
+                .WithMany(x => x.ProjectBillingCategories)
+                .HasForeignKey(x => x.ProjectId);
+
+            builder.HasOne(x => x.BillingCategory)
+                .WithMany(x => x.ProjectBillingCategories)
+                .HasForeignKey(x => x.BillingCategoryId);
+
+            builder.Ignore(x => x.ObjectState);
         }
     }
 }

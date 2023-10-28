@@ -14,7 +14,18 @@ namespace AgencyPro.Organizations.Entities
         public long Quantity { get; set; }
         public override void Configure(EntityTypeBuilder<StripeSubscriptionItem> builder)
         {
-            throw new System.NotImplementedException();
+            builder.HasKey(x => x.Id);
+            builder.Property(x => x.Id).IsRequired();
+
+            builder.HasOne(x => x.Subscription)
+                .WithMany(x => x.Items)
+                .HasForeignKey(x => x.SubscriptionId)
+                .IsRequired();
+
+            builder.HasQueryFilter(x => x.IsDeleted == false);
+
+
+            AddAuditProperties(builder);
         }
     }
 }

@@ -19,7 +19,17 @@ namespace AgencyPro.Stripe.Entities
         public long? Amount { get; set; }
         public override void Configure(EntityTypeBuilder<StripeSource> builder)
         {
-            throw new System.NotImplementedException();
+            builder.HasKey(x => x.Id);
+            builder.Property(x => x.Id).IsRequired();
+
+            builder.HasQueryFilter(x => x.IsDeleted == false);
+
+            builder.HasOne(x => x.Customer)
+                .WithMany(x => x.PaymentSources)
+                .HasForeignKey(x => x.CustomerId)
+                .IsRequired(false);
+
+            AddAuditProperties(builder);
         }
     }
 }

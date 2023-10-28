@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using AgencyPro.OrganizationRoles.Interfaces;
-using AgencyPro.Roles.Models;
+using AgencyPro.Roles.Entities;
 
 namespace AgencyPro.Roles.Extensions
 {

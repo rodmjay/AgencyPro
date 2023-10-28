@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using AgencyPro.BuyerAccounts.Models;
 using AgencyPro.OrganizationRoles.Interfaces;
-using AgencyPro.Roles.Models;
+using AgencyPro.Roles.Entities;
 
 namespace AgencyPro.BuyerAccounts.Interfaces
 {

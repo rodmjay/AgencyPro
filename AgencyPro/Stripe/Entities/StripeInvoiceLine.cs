@@ -25,7 +25,20 @@ namespace AgencyPro.Stripe.Entities
 
         public override void Configure(EntityTypeBuilder<StripeInvoiceLine> builder)
         {
-            throw new NotImplementedException();
+            builder.HasKey(x => x.Id);
+            builder.Property(x => x.Id).IsRequired();
+
+            builder.HasOne(x => x.Invoice)
+                .WithMany(x => x.Lines)
+                .HasForeignKey(x => x.InvoiceId)
+                .IsRequired();
+
+            builder.HasOne(x => x.InvoiceItem)
+                .WithMany(x => x.InvoiceLines)
+                .HasForeignKey(x => x.InvoiceItemId)
+                .IsRequired(false);
+
+            AddAuditProperties(builder);
         }
     }
 }

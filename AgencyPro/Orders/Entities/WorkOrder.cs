@@ -8,7 +8,8 @@ using AgencyPro.Orders.Interfaces;
 using AgencyPro.OrganizationRoles.Entities;
 using AgencyPro.Organizations.Entities;
 using AgencyPro.ProviderOrganizations.Entities;
-using AgencyPro.Roles.Models;
+using AgencyPro.Roles.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AgencyPro.Orders.Entities
@@ -46,7 +47,49 @@ namespace AgencyPro.Orders.Entities
         public bool IsDeleted { get; set; }
         public override void Configure(EntityTypeBuilder<WorkOrder> builder)
         {
-            throw new NotImplementedException();
+            builder.HasKey(x => x.Id);
+
+            builder.HasIndex("AccountManagerOrganizationId", "ProviderNumber")
+                .HasDatabaseName("ProviderNumberIndex").IsUnique();
+
+            builder.HasIndex("CustomerOrganizationId", "BuyerNumber")
+                .HasDatabaseName("BuyerNumberIndex").IsUnique();
+
+            builder.HasOne(x => x.AccountManager)
+                .WithMany(x => x.WorkOrders)
+                .HasForeignKey(x => x.AccountManagerId)
+                .IsRequired(true);
+
+            builder.HasOne(x => x.Customer)
+                .WithMany(x => x.WorkOrders)
+                .HasForeignKey(x => x.CustomerId)
+                .IsRequired(true);
+
+            builder.HasOne(x => x.CustomerAccount)
+                .WithMany(x => x.WorkOrders)
+                .HasForeignKey(x => new
+                {
+                    x.CustomerOrganizationId,
+                    x.CustomerId,
+                    x.AccountManagerOrganizationId,
+                    x.AccountManagerId
+                }).IsRequired();
+
+            builder.HasOne(x => x.OrganizationAccountManager)
+                .WithMany(x => x.WorkOrders)
+                .HasForeignKey(x => new
+                {
+                    x.AccountManagerOrganizationId,
+                    x.AccountManagerId
+                });
+
+            builder.HasOne(x => x.ProviderOrganization)
+                .WithMany(x => x.WorkOrders)
+                .HasForeignKey(x => x.AccountManagerOrganizationId);
+
+            builder.HasQueryFilter(x => x.IsDeleted == false);
+
+            AddAuditProperties(builder);
         }
     }
 }

@@ -13,7 +13,21 @@ namespace AgencyPro.Positions.Entities
         public int PositionId { get; set; }
         public override void Configure(EntityTypeBuilder<CategoryPosition> builder)
         {
-            throw new System.NotImplementedException();
+            builder.HasKey(x => new
+            {
+                x.CategoryId,
+                x.PositionId
+            });
+
+            builder.HasOne(x => x.Category)
+                .WithMany(x => x.Positions)
+                .HasForeignKey(x => x.CategoryId)
+                .IsRequired();
+
+            builder.HasOne(x => x.Position)
+                .WithMany(x => x.Categories)
+                .HasForeignKey(x => x.PositionId)
+                .IsRequired();
         }
     }
 }

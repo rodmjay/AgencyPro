@@ -6,6 +6,7 @@ using AgencyPro.Contracts.Entities;
 using AgencyPro.PayoutIntents.Entities;
 using AgencyPro.Stripe.Interfaces;
 using AgencyPro.TimeEntries.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AgencyPro.Stripe.Entities
@@ -48,7 +49,47 @@ namespace AgencyPro.Stripe.Entities
         public Contract Contract { get; set; }
         public override void Configure(EntityTypeBuilder<StripeInvoiceItem> builder)
         {
-            throw new NotImplementedException();
+            builder.HasKey(x => x.Id);
+            builder.Property(x => x.Id).IsRequired();
+
+            builder.HasQueryFilter(x => x.IsDeleted == false);
+
+            builder.HasOne(x => x.Customer)
+                .WithMany(x => x.InvoiceItems)
+                .HasForeignKey(x => x.CustomerId);
+
+            builder.HasOne(x => x.Invoice)
+                .WithMany(x => x.Items)
+                .HasForeignKey(x => x.InvoiceId);
+
+            builder.HasMany(x => x.TimeEntries)
+                .WithOne(x => x.InvoiceItem)
+                .HasForeignKey(x => x.InvoiceItemId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            builder.HasOne(x => x.Contract)
+                .WithMany(x => x.InvoiceItems)
+                .HasForeignKey(x => x.ContractId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            builder.HasMany(x => x.IndividualPayoutIntents)
+                .WithOne(x => x.InvoiceItem)
+                .HasForeignKey(x => x.InvoiceItemId)
+                .IsRequired();
+
+            builder.HasMany(x => x.OrganizationPayoutIntents)
+                .WithOne(x => x.InvoiceItem)
+                .HasForeignKey(x => x.InvoiceItemId)
+                .IsRequired();
+
+            builder.HasMany(x => x.InvoiceLines)
+                .WithOne(x => x.InvoiceItem)
+                .HasForeignKey(x => x.InvoiceItemId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            AddAuditProperties(builder);
         }
     }
 }

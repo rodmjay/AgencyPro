@@ -12,8 +12,9 @@ using AgencyPro.Organizations.Entities;
 using AgencyPro.Projects.Entities;
 using AgencyPro.ProviderOrganizations.Entities;
 using AgencyPro.Retainers.Entities;
-using AgencyPro.Roles.Models;
+using AgencyPro.Roles.Entities;
 using AgencyPro.TimeEntries.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AgencyPro.OrganizationRoles.Entities
@@ -50,7 +51,51 @@ namespace AgencyPro.OrganizationRoles.Entities
         public ICollection<ProjectRetainerIntent> RetainerIntents { get; set; }
         public override void Configure(EntityTypeBuilder<OrganizationAccountManager> builder)
         {
-            throw new NotImplementedException();
+            builder
+                .HasKey(x => new
+                {
+                    x.OrganizationId,
+                    x.AccountManagerId
+                });
+
+            builder.Property(x => x.AccountManagerStream).HasColumnType("Money");
+            builder.Property(u => u.ConcurrencyStamp).IsConcurrencyToken();
+            builder.HasQueryFilter(x => x.IsDeleted == false);
+
+
+            builder
+                .HasMany(x => x.Accounts)
+                .WithOne(x => x.OrganizationAccountManager)
+                .HasForeignKey(x => new
+                {
+                    x.AccountManagerOrganizationId,
+                    x.AccountManagerId
+                });
+
+            builder
+                .HasMany(x => x.Leads)
+                .WithOne(x => x.OrganizationAccountManager)
+                .HasForeignKey(x => new
+                {
+                    OrganizationId = x.AccountManagerOrganizationId,
+                    x.AccountManagerId
+                }).IsRequired(false);
+
+            builder
+                .HasOne(x => x.OrganizationPerson)
+                .WithOne(x => x.AccountManager)
+                .HasForeignKey<OrganizationAccountManager>(x => new
+                {
+                    x.OrganizationId,
+                    x.AccountManagerId
+                })
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne(x => x.Organization)
+                .WithMany(x => x.AccountManagers)
+                .HasForeignKey(x => x.OrganizationId);
+
+            AddAuditProperties(builder);
         }
     }
 }

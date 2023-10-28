@@ -10,8 +10,9 @@ using AgencyPro.Organizations.Entities;
 using AgencyPro.Projects.Entities;
 using AgencyPro.Proposals.Entities;
 using AgencyPro.Retainers.Entities;
-using AgencyPro.Roles.Models;
+using AgencyPro.Roles.Entities;
 using AgencyPro.TimeEntries.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AgencyPro.OrganizationRoles.Entities
@@ -44,7 +45,42 @@ namespace AgencyPro.OrganizationRoles.Entities
         public ICollection<ProjectRetainerIntent> RetainerIntents { get; set; }
         public override void Configure(EntityTypeBuilder<OrganizationCustomer> builder)
         {
-            throw new NotImplementedException();
+            builder
+                .HasKey(x => new
+                {
+                    x.OrganizationId,
+                    x.CustomerId
+                });
+
+            builder.Property(u => u.ConcurrencyStamp).IsConcurrencyToken();
+            builder.HasQueryFilter(x => x.IsDeleted == false);
+
+
+            builder.HasOne(x => x.Customer)
+                .WithMany(x => x.OrganizationCustomers)
+                .HasForeignKey(x => x.CustomerId)
+                .IsRequired();
+
+            builder
+                .HasMany(x => x.Accounts)
+                .WithOne(x => x.OrganizationCustomer)
+                .HasForeignKey(x => new
+                {
+                    x.CustomerOrganizationId,
+                    x.CustomerId
+                }).IsRequired();
+
+
+            builder
+                .HasOne(x => x.OrganizationPerson)
+                .WithOne(x => x.Customer).HasForeignKey<OrganizationCustomer>(x => new
+                {
+                    x.OrganizationId,
+                    x.CustomerId
+                })
+                .OnDelete(DeleteBehavior.Cascade);
+
+            AddAuditProperties(builder);
         }
     }
 }

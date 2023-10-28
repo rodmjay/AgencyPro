@@ -19,7 +19,13 @@ namespace AgencyPro.Positions.Entities
         public ICollection<OrganizationPosition> Organizations { get; set; }
         public override void Configure(EntityTypeBuilder<Position> builder)
         {
-            throw new System.NotImplementedException();
+            builder.HasKey(x => x.Id);
+            builder.Property(x => x.Id).ValueGeneratedOnAdd();
+
+            builder.HasMany(x => x.Levels)
+                .WithOne(x => x.Position)
+                .HasForeignKey(x => x.PositionId);
+
         }
     }
 

@@ -8,9 +8,10 @@ using AgencyPro.OrganizationRoles.Entities;
 using AgencyPro.People.Entities;
 using AgencyPro.Roles.Interfaces;
 using AgencyPro.TimeEntries.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace AgencyPro.Roles.Models
+namespace AgencyPro.Roles.Entities
 {
     public class Marketer : AuditableEntity<Marketer>, IMarketer
     {
@@ -27,7 +28,10 @@ namespace AgencyPro.Roles.Models
 
         public override void Configure(EntityTypeBuilder<Marketer> builder)
         {
-            throw new NotImplementedException();
+            builder
+                .HasOne(x => x.Person)
+                .WithOne(x => x.Marketer)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

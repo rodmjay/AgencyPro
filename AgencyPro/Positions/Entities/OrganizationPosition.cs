@@ -14,7 +14,21 @@ namespace AgencyPro.Positions.Entities
 
         public override void Configure(EntityTypeBuilder<OrganizationPosition> builder)
         {
-            throw new NotImplementedException();
+            builder.HasKey(x => new
+            {
+                x.OrganizationId,
+                x.PositionId
+            });
+
+            builder.HasOne(x => x.Organization)
+                .WithMany(x => x.Positions)
+                .HasForeignKey(x => x.OrganizationId)
+                .IsRequired();
+
+            builder.HasOne(x => x.Position)
+                .WithMany(x => x.Organizations)
+                .HasForeignKey(x => x.PositionId)
+                .IsRequired();
         }
     }
 }

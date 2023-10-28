@@ -7,11 +7,12 @@ using AgencyPro.Common.Data.Bases;
 using AgencyPro.Notifications.Entities;
 using AgencyPro.OrganizationRoles.Entities;
 using AgencyPro.Projects.Entities;
-using AgencyPro.Roles.Models;
+using AgencyPro.Roles.Entities;
 using AgencyPro.Stories.Enums;
 using AgencyPro.Stories.Interfaces;
 using AgencyPro.StoryTemplates.Entities;
 using AgencyPro.TimeEntries.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AgencyPro.Stories.Entities
@@ -67,7 +68,32 @@ namespace AgencyPro.Stories.Entities
         public decimal TotalHoursLogged { get; set; }
         public override void Configure(EntityTypeBuilder<Story> builder)
         {
-            throw new NotImplementedException();
+            builder
+                .HasOne(x => x.OrganizationContractor)
+                .WithMany(x => x.Stories)
+                .HasForeignKey(x => new
+                {
+                    x.ContractorOrganizationId,
+                    x.ContractorId
+                }).OnDelete(DeleteBehavior.SetNull);
+
+            builder.OwnsMany(x => x.StatusTransitions, a =>
+            {
+                a.WithOwner().HasForeignKey(x => x.StoryId);
+                a.HasKey(x => x.Id);
+                a.Property(x => x.Id).ValueGeneratedOnAdd();
+                a.Ignore(x => x.ObjectState);
+                a.Property(x => x.Created).HasDefaultValueSql("SYSDATETIMEOFFSET()");
+            });
+            builder.HasQueryFilter(x => !x.IsDeleted);
+
+            builder.HasOne(x => x.Contractor)
+                .WithMany(x => x.Stories)
+                .HasForeignKey(x => x.ContractorId)
+                .IsRequired(false);
+
+            builder.Property(u => u.ConcurrencyStamp).IsConcurrencyToken();
+            AddAuditProperties(builder);
         }
     }
 }

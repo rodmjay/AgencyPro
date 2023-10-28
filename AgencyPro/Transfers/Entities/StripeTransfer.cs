@@ -24,7 +24,17 @@ namespace AgencyPro.Transfers.Entities
 
         public override void Configure(EntityTypeBuilder<StripeTransfer> builder)
         {
-            throw new System.NotImplementedException();
+            builder.HasKey(x => x.Id);
+            builder.Property(x => x.Id).IsRequired();
+
+            builder.HasQueryFilter(x => x.IsDeleted == false);
+
+            builder.HasOne(x => x.DestinationAccount)
+                .WithMany(x => x.Transfers)
+                .HasForeignKey(x => x.DestinationId);
+
+
+            AddAuditProperties(builder);
         }
     }
 }

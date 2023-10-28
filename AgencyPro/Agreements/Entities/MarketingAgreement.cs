@@ -4,6 +4,7 @@ using AgencyPro.Agreements.Interfaces;
 using AgencyPro.Common.Data.Bases;
 using AgencyPro.MarketingOrganizations.Entities;
 using AgencyPro.ProviderOrganizations.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AgencyPro.Agreements.Entities
@@ -42,7 +43,29 @@ namespace AgencyPro.Agreements.Entities
         public AgreementStatus Status { get; set; }
         public override void Configure(EntityTypeBuilder<MarketingAgreement> builder)
         {
-            throw new NotImplementedException();
+            builder.HasKey(x => new
+            {
+                x.ProviderOrganizationId,
+                x.MarketingOrganizationId
+            });
+
+            builder.HasOne(x => x.ProviderOrganization)
+                .WithMany(x => x.MarketingAgreements)
+                .HasForeignKey(x => x.ProviderOrganizationId);
+
+            builder.Property(x => x.MarketerBonus).HasColumnType("Money");
+            builder.Property(x => x.MarketingAgencyStream).HasColumnType("Money");
+            builder.Property(x => x.MarketerStream).HasColumnType("Money");
+            builder.Property(x => x.MarketingAgencyBonus).HasColumnType("Money");
+
+
+            var marketingStreamComputation = $@"[{nameof(MarketingAgreement.MarketingAgencyStream)}]+[{nameof(MarketingAgreement.MarketerStream)}]";
+            var marketingBonusComputation = $@"[{nameof(MarketingAgreement.MarketerBonus)}]+[{nameof(MarketingAgreement.MarketingAgencyBonus)}]";
+
+            builder.Property(x => x.MarketingStream).HasComputedColumnSql(marketingStreamComputation);
+            builder.Property(x => x.MarketingBonus).HasComputedColumnSql(marketingBonusComputation);
+
+            AddAuditProperties(builder);
         }
     }
 }

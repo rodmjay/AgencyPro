@@ -19,7 +19,21 @@ namespace AgencyPro.Cards.Entities
 
         public override void Configure(EntityTypeBuilder<AccountCard> builder)
         {
-            throw new System.NotImplementedException();
+            builder.HasKey(x => x.Id);
+            builder.Property(x => x.Id).IsRequired();
+
+            builder.HasQueryFilter(x => x.IsDeleted == false);
+
+            builder.HasOne(x => x.FinancialAccount)
+                .WithMany(x => x.Cards)
+                .HasForeignKey(x => x.AccountId)
+                .IsRequired();
+
+            builder.HasOne(x => x.StripeCard)
+                .WithOne(x => x.AccountCard)
+                .HasForeignKey<AccountCard>(x => x.Id);
+
+            AddAuditProperties(builder);
         }
     }
 }

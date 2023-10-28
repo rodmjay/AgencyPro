@@ -17,7 +17,18 @@ namespace AgencyPro.Stripe.Entities
         public ICollection<StripeBalanceTransaction> BalanceTransactions { get; set; }
         public override void Configure(EntityTypeBuilder<StripePayout> builder)
         {
-            throw new NotImplementedException();
+            builder.HasKey(x => x.Id);
+            builder.Property(x => x.Id).IsRequired();
+
+            builder.HasQueryFilter(x => x.IsDeleted == false);
+
+            AddAuditProperties(builder);
+
+
+            builder.HasMany(x => x.BalanceTransactions)
+                .WithOne(x => x.Payout)
+                .HasForeignKey(x => x.PayoutId)
+                .IsRequired(false);
         }
     }
 }

@@ -6,8 +6,9 @@ using AgencyPro.Leads.Entities;
 using AgencyPro.MarketingOrganizations.Entities;
 using AgencyPro.OrganizationPeople.Entities;
 using AgencyPro.Organizations.Entities;
-using AgencyPro.Roles.Models;
+using AgencyPro.Roles.Entities;
 using AgencyPro.TimeEntries.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AgencyPro.OrganizationRoles.Entities
@@ -42,7 +43,50 @@ namespace AgencyPro.OrganizationRoles.Entities
         public decimal MarketerBonus { get; set; }
         public override void Configure(EntityTypeBuilder<OrganizationMarketer> builder)
         {
-            throw new NotImplementedException();
+            builder
+                .HasKey(x => new
+                {
+                    x.OrganizationId,
+                    x.MarketerId
+                });
+
+            builder.Property(x => x.MarketerStream).HasColumnType("Money");
+            builder.Property(x => x.MarketerBonus).HasColumnType("Money");
+
+            builder.Property(u => u.ConcurrencyStamp).IsConcurrencyToken();
+            builder.HasQueryFilter(x => x.IsDeleted == false);
+
+
+
+            builder
+                .HasMany(x => x.Contracts)
+                .WithOne(x => x.OrganizationMarketer)
+                .HasForeignKey(x => new
+                {
+                    x.MarketerOrganizationId,
+                    x.MarketerId
+                });
+
+            builder
+                .HasMany(x => x.Leads)
+                .WithOne(x => x.OrganizationMarketer)
+                .HasForeignKey(x => new
+                {
+                    x.MarketerOrganizationId,
+                    x.MarketerId
+                });
+
+            builder
+                .HasOne(x => x.OrganizationPerson)
+                .WithOne(x => x.Marketer)
+                .HasForeignKey<OrganizationMarketer>(x => new
+                {
+                    x.OrganizationId,
+                    x.MarketerId
+                })
+                .OnDelete(DeleteBehavior.Cascade);
+
+            AddAuditProperties(builder);
         }
     }
 }

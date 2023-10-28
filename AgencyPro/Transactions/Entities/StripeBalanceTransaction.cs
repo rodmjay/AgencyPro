@@ -23,7 +23,17 @@ namespace AgencyPro.Transactions.Entities
         public StripePayout Payout { get; set; }
         public override void Configure(EntityTypeBuilder<StripeBalanceTransaction> builder)
         {
-            throw new NotImplementedException();
+            builder.HasKey(x => x.Id);
+            builder.Property(x => x.Id).IsRequired();
+
+            builder.HasQueryFilter(x => x.IsDeleted == false);
+
+            AddAuditProperties(builder);
+
+            builder.HasOne(x => x.Payout)
+                .WithMany(x => x.BalanceTransactions)
+                .HasForeignKey(x => x.PayoutId)
+                .IsRequired(false);
         }
     }
 }

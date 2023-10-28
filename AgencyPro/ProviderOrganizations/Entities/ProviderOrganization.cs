@@ -13,6 +13,7 @@ using AgencyPro.Organizations.Entities;
 using AgencyPro.Projects.Entities;
 using AgencyPro.ProviderOrganizations.Interfaces;
 using AgencyPro.Skills.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AgencyPro.ProviderOrganizations.Entities
@@ -79,7 +80,112 @@ namespace AgencyPro.ProviderOrganizations.Entities
 
         public override void Configure(EntityTypeBuilder<ProviderOrganization> builder)
         {
-            throw new NotImplementedException();
+            builder
+                .HasOne(x => x.Organization)
+                .WithOne(x => x.ProviderOrganization)
+                .OnDelete(DeleteBehavior.Cascade);
+
+
+            builder.HasMany(x => x.Projects)
+                .WithOne(x => x.ProviderOrganization)
+                .HasForeignKey(x => x.ProjectManagerOrganizationId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+
+            builder.HasMany(x => x.MarketingAgreements)
+                .WithOne(x => x.ProviderOrganization)
+                .HasForeignKey(x => x.ProviderOrganizationId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasMany(x => x.Contracts)
+                .WithOne(x => x.ProviderOrganization)
+                .HasForeignKey(x => x.ContractorOrganizationId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasMany(x => x.Leads)
+                .WithOne(x => x.ProviderOrganization)
+                .HasForeignKey(x => x.ProviderOrganizationId)
+                .IsRequired();
+
+            builder.HasMany(x => x.Candidates)
+                .WithOne(x => x.ProviderOrganization)
+                .HasForeignKey(x => x.ProviderOrganizationId)
+                .IsRequired();
+
+            builder.HasMany(x => x.CustomerAccounts)
+                .WithOne(x => x.ProviderOrganization)
+                .HasForeignKey(x => x.AccountManagerOrganizationId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasMany(x => x.Skills)
+                .WithOne(x => x.Organization)
+                .HasForeignKey(x => x.OrganizationId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+
+
+            builder.Property(x => x.AccountManagerStream).HasColumnType("Money");
+            builder.Property(x => x.ProjectManagerStream).HasColumnType("Money");
+            builder.Property(x => x.AgencyStream).HasColumnType("Money");
+            builder.Property(x => x.ContractorStream).HasColumnType("Money");
+
+            builder.Property(x => x.FutureDaysAllowed).HasDefaultValue(0);
+            builder.Property(x => x.PreviousDaysAllowed).HasDefaultValue(14);
+
+            builder.Property(x => x.AccountManagerStream).HasColumnType("Money");
+            builder.Property(x => x.ProjectManagerStream).HasColumnType("Money");
+
+            builder.Property(x => x.SystemStream).HasColumnType("Money");
+            builder.Property(x => x.ContractorStream).HasColumnType("Money");
+
+            builder.HasMany(x => x.WorkOrders)
+                .WithOne(x => x.ProviderOrganization)
+                .HasForeignKey(x => x.AccountManagerOrganizationId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(x => x.DefaultContractor)
+                .WithMany(x => x.DefaultOrganizations)
+                .HasForeignKey(x => new
+                {
+                    x.Id,
+                    x.DefaultContractorId
+                }).IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(x => x.DefaultProjectManager)
+                .WithMany(x => x.DefaultOrganizations)
+                .HasForeignKey(x => new
+                {
+                    x.Id,
+                    x.DefaultProjectManagerId
+                }).IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(x => x.DefaultAccountManager)
+                .WithMany(x => x.DefaultOrganizations)
+                .HasForeignKey(x => new
+                {
+                    x.Id,
+                    x.DefaultAccountManagerId
+                }).IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //builder.HasMany(x => x.Contractors)
+            //    .WithOne(x => x.ProviderOrganization)
+            //    .HasForeignKey(x => x.OrganizationId)
+            //    .OnDelete(DeleteBehavior.Restrict);
+
+            //builder.HasMany(x => x.ProjectManagers)
+            //    .WithOne(x => x.ProviderOrganization)
+            //    .HasForeignKey(x => x.OrganizationId)
+            //    .OnDelete(DeleteBehavior.Restrict);
+
+            //builder.HasMany(x => x.AccountManagers)
+            //    .WithOne(x => x.ProviderOrganization)
+            //    .HasForeignKey(x => x.OrganizationId)
+            //    .OnDelete(DeleteBehavior.Restrict);
+
+            AddAuditProperties(builder);
         }
     }
 }

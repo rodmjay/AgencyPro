@@ -4,6 +4,7 @@ using AgencyPro.Agreements.Interfaces;
 using AgencyPro.Common.Data.Bases;
 using AgencyPro.ProviderOrganizations.Entities;
 using AgencyPro.RecruitingOrganizations.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AgencyPro.Agreements.Entities
@@ -41,7 +42,29 @@ namespace AgencyPro.Agreements.Entities
         public AgreementStatus Status { get; set; }
         public override void Configure(EntityTypeBuilder<RecruitingAgreement> builder)
         {
-            throw new NotImplementedException();
+            builder.HasKey(x => new
+            {
+                x.ProviderOrganizationId,
+                x.RecruitingOrganizationId
+            });
+
+            builder.HasOne(x => x.ProviderOrganization)
+                .WithMany(x => x.RecruitingAgreements)
+                .HasForeignKey(x => x.ProviderOrganizationId);
+
+            builder.Property(x => x.RecruiterBonus).HasColumnType("Money");
+            builder.Property(x => x.RecruitingAgencyBonus).HasColumnType("Money");
+            builder.Property(x => x.RecruiterStream).HasColumnType("Money");
+            builder.Property(x => x.RecruitingAgencyStream).HasColumnType("Money");
+
+
+            var recruitingStreamComputation = $@"[{nameof(RecruitingAgreement.RecruitingAgencyStream)}]+[{nameof(RecruitingAgreement.RecruiterStream)}]";
+            var recruitingBonusComputation = $@"[{nameof(RecruitingAgreement.RecruitingAgencyBonus)}]+[{nameof(RecruitingAgreement.RecruiterBonus)}]";
+
+            builder.Property(x => x.RecruitingStream).HasComputedColumnSql(recruitingStreamComputation);
+            builder.Property(x => x.RecruitingBonus).HasComputedColumnSql(recruitingBonusComputation);
+
+            AddAuditProperties(builder);
         }
     }
 }

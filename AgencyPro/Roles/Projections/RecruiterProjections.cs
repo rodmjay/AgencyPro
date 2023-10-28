@@ -1,4 +1,4 @@
-﻿using AgencyPro.Roles.Models;
+﻿using AgencyPro.Roles.Entities;
 using AgencyPro.Roles.ViewModels.Recruiters;
 using AutoMapper;
 

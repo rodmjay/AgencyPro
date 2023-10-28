@@ -7,9 +7,10 @@ using AgencyPro.OrganizationPeople.Entities;
 using AgencyPro.Organizations.Entities;
 using AgencyPro.Positions.Entities;
 using AgencyPro.ProviderOrganizations.Entities;
-using AgencyPro.Roles.Models;
+using AgencyPro.Roles.Entities;
 using AgencyPro.Stories.Entities;
 using AgencyPro.TimeEntries.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AgencyPro.OrganizationRoles.Entities
@@ -50,7 +51,67 @@ namespace AgencyPro.OrganizationRoles.Entities
         public bool AutoApproveTimeEntries { get; set; }
         public override void Configure(EntityTypeBuilder<OrganizationContractor> builder)
         {
-            throw new NotImplementedException();
+            builder
+                .HasKey(x => new
+                {
+                    x.OrganizationId,
+                    x.ContractorId
+                });
+
+            builder.Property(x => x.ContractorStream)
+                .HasColumnType("Money")
+                .IsRequired();
+
+            builder.Property(u => u.ConcurrencyStamp).IsConcurrencyToken();
+            builder.HasQueryFilter(x => x.IsDeleted == false);
+
+            builder.HasOne(x => x.Organization)
+                .WithMany(x => x.Contractors)
+                .HasForeignKey(x => x.OrganizationId);
+
+            builder
+                .HasMany(x => x.Contracts)
+                .WithOne(x => x.OrganizationContractor)
+                .HasForeignKey(x => new
+                {
+                    x.ContractorOrganizationId,
+                    x.ContractorId
+                });
+
+            builder
+                .HasMany(x => x.Stories)
+                .WithOne(x => x.OrganizationContractor)
+                .HasForeignKey(x => new
+                {
+                    x.ContractorOrganizationId,
+                    x.ContractorId
+                });
+
+            builder.HasOne(x => x.OrganizationPerson)
+                .WithOne(x => x.Contractor);
+
+            builder
+                .HasOne(x => x.OrganizationPerson)
+                .WithOne(x => x.Contractor)
+                .HasForeignKey<OrganizationContractor>(x => new
+                {
+                    x.OrganizationId,
+                    x.ContractorId
+                })
+                .OnDelete(DeleteBehavior.Cascade);
+
+
+            builder.HasOne(x => x.Position)
+                .WithMany(x => x.Contractors)
+                .HasForeignKey(x => x.PositionId)
+                .IsRequired(false);
+
+            builder.HasOne(x => x.Level)
+                .WithMany(x => x.Contractors)
+                .HasForeignKey(x => x.LevelId)
+                .IsRequired(false);
+
+            AddAuditProperties(builder);
         }
     }
 }

@@ -1,11 +1,10 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations.Schema;
-using AgencyPro.BuyerAccounts.Entities;
 using AgencyPro.Common.Data.Bases;
 using AgencyPro.Organizations.Entities;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace AgencyPro.OrganizationRoles.Entities
+namespace AgencyPro.BuyerAccounts.Entities
 {
     public class OrganizationBuyerAccount : BaseEntity<OrganizationBuyerAccount>
     {
@@ -20,7 +19,15 @@ namespace AgencyPro.OrganizationRoles.Entities
         public string BuyerAccountId { get; set; }
         public override void Configure(EntityTypeBuilder<OrganizationBuyerAccount> builder)
         {
-            throw new NotImplementedException();
+            builder.HasOne(x => x.BuyerAccount)
+                .WithOne(x => x.OrganizationBuyerAccount)
+                .HasForeignKey<OrganizationBuyerAccount>(x => x.BuyerAccountId)
+                .IsRequired(true);
+
+            builder.HasOne(x => x.Organization)
+                .WithOne(x => x.OrganizationBuyerAccount)
+                .HasForeignKey<OrganizationBuyerAccount>(x => x.Id)
+                .IsRequired(true);
         }
     }
 }

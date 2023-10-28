@@ -16,7 +16,18 @@ namespace AgencyPro.PandaDocs
         public ServiceAgreement ServiceAgreement { get; set; }
         public override void Configure(EntityTypeBuilder<PandaDocument> builder)
         {
-            throw new NotImplementedException();
+            builder.HasKey(x => x.Id);
+
+            builder.HasOne(x => x.ServiceAgreement)
+                .WithOne(x => x.Document)
+                .HasForeignKey<ServiceAgreement>(x => x.DocumentId);
+
+            builder.HasQueryFilter(x => x.IsDeleted == false);
+
+            builder.Property(x => x.Id).IsRequired();
+
+
+            AddAuditProperties(builder);
         }
     }
 }

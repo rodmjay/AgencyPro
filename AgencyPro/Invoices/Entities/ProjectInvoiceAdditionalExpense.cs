@@ -8,6 +8,7 @@
 #endregion
 
 using AgencyPro.Common.Data.Bases;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AgencyPro.Invoices.Entities
@@ -23,7 +24,12 @@ namespace AgencyPro.Invoices.Entities
         public ProjectInvoice ProjectInvoice { get; set; }
         public override void Configure(EntityTypeBuilder<ProjectInvoiceAdditionalExpense> builder)
         {
-            throw new System.NotImplementedException();
+            builder.HasKey(x => x.Id);
+
+            builder.HasOne(x => x.ProjectInvoice)
+                .WithMany(x => x.AdditionalExpenses)
+                .HasForeignKey(x => x.InvoiceId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

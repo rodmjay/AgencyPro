@@ -22,7 +22,18 @@ namespace AgencyPro.BillingCategories.Entities
         public ICollection<OrganizationBillingCategory> OrganizationBillingCategories { get; set; }
         public override void Configure(EntityTypeBuilder<BillingCategory> builder)
         {
-            throw new NotImplementedException();
+            builder.HasKey(x => x.Id);
+            builder.Property(x => x.Id).ValueGeneratedOnAdd();
+
+            builder.HasMany(x => x.ProjectBillingCategories)
+                .WithOne(x => x.BillingCategory)
+                .HasForeignKey(x => x.BillingCategoryId);
+
+            builder.HasMany(x => x.TimeEntries)
+                .WithOne(x => x.BillingCategory)
+                .HasForeignKey(x => x.TimeType);
+
+            builder.HasQueryFilter(z => !z.IsDeleted);
         }
     }
 }

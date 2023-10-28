@@ -3,7 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 using AgencyPro.Common.Data.Bases;
 using AgencyPro.OrganizationRoles.Entities;
 using AgencyPro.Proposals.Enums;
-using AgencyPro.Roles.Models;
+using AgencyPro.Roles.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AgencyPro.Proposals.Entities
@@ -38,7 +39,36 @@ namespace AgencyPro.Proposals.Entities
         public OrganizationCustomer OrganizationCustomer { get; set; }
         public override void Configure(EntityTypeBuilder<ProposalAcceptance> builder)
         {
-            throw new NotImplementedException();
+            builder.HasKey(x => x.Id);
+
+            builder
+                .HasOne(x => x.Proposal)
+                .WithOne(x => x.ProposalAcceptance);
+
+
+
+            builder.Property(x => x.AgreementText);
+            builder.Property(x => x.CustomerRate).HasColumnType("Money");
+            builder.Property(x => x.TotalDays);
+            builder.Property(x => x.Velocity);
+            builder.Property(x => x.ProposalType);
+
+
+            builder.HasOne(x => x.Customer)
+                .WithMany(x => x.ProposalsAccepted)
+                .HasForeignKey(x => x.CustomerId)
+                .IsRequired();
+
+            builder.HasOne(x => x.OrganizationCustomer)
+                .WithMany(x => x.ProposalsAccepted)
+                .HasForeignKey(x => new
+                {
+                    x.CustomerOrganizationId,
+                    x.CustomerId
+                })
+                .IsRequired();
+
+            AddAuditProperties(builder);
         }
     }
 }

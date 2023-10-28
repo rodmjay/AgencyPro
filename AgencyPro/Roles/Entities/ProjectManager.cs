@@ -1,40 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using AgencyPro.Candidates.Entities;
 using AgencyPro.Common.Data.Bases;
 using AgencyPro.Contracts.Entities;
-using AgencyPro.CustomerAccounts.Entities;
 using AgencyPro.Invoices.Entities;
-using AgencyPro.Leads.Entities;
-using AgencyPro.Orders.Entities;
 using AgencyPro.OrganizationRoles.Entities;
 using AgencyPro.People.Entities;
-using AgencyPro.Retainers.Entities;
+using AgencyPro.Projects.Entities;
 using AgencyPro.Roles.Interfaces;
 using AgencyPro.TimeEntries.Entities;
-using Microsoft.CodeAnalysis;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace AgencyPro.Roles.Models
+namespace AgencyPro.Roles.Entities
 {
-    public class AccountManager : AuditableEntity<AccountManager>, IAccountManager
+    public class ProjectManager : AuditableEntity<ProjectManager>, IProjectManager
     {
         [ForeignKey("Id")] public Person Person { get; set; }
 
-        public ICollection<OrganizationAccountManager> OrganizationAccountManagers { get; set; }
-        public ICollection<WorkOrder> WorkOrders { get; set; }
+        public ICollection<OrganizationProjectManager> OrganizationProjectManagers { get; set; }
         public ICollection<Project> Projects { get; set; }
-        public ICollection<CustomerAccount> CustomerAccounts { get; set; }
-        public ICollection<Lead> Leads { get; set; }
+        public ICollection<Candidate> Candidates { get; set; }
         public ICollection<Contract> Contracts { get; set; }
         public ICollection<TimeEntry> TimeEntries { get; set; }
         public ICollection<ProjectInvoice> Invoices { get; set; }
+
         public Guid Id { get; set; }
-      
-        public ICollection<ProjectRetainerIntent> RetainerIntents { get; set; }
-        public override void Configure(EntityTypeBuilder<AccountManager> builder)
+       
+
+        public override void Configure(EntityTypeBuilder<ProjectManager> builder)
         {
-            throw new NotImplementedException();
+            builder
+                .HasOne(x => x.Person)
+                .WithOne(x => x.ProjectManager)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

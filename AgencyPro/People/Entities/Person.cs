@@ -9,8 +9,9 @@ using AgencyPro.OrganizationPeople.Entities;
 using AgencyPro.PayoutIntents.Entities;
 using AgencyPro.People.Enums;
 using AgencyPro.People.Interfaces;
-using AgencyPro.Roles.Models;
+using AgencyPro.Roles.Entities;
 using AgencyPro.Users.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AgencyPro.People.Entities
@@ -71,7 +72,56 @@ namespace AgencyPro.People.Entities
         public Lead Lead { get; set; }
         public override void Configure(EntityTypeBuilder<Person> builder)
         {
-            throw new NotImplementedException();
+            // id properties
+            builder.HasKey(x => x.Id);
+            builder.Property(x => x.Id).HasDefaultValueSql("NEWID()");
+
+            // name properties
+            builder.Property(x => x.FirstName).IsRequired().HasMaxLength(30);
+            builder.Property(x => x.LastName).IsRequired().HasMaxLength(30);
+            builder.Property(p => p.DisplayName).HasComputedColumnSql("[FirstName] + ' ' + [LastName]");
+
+
+            builder.Property(x => x.ImageUrl).HasMaxLength(500);
+            builder.Property(x => x.Address).HasMaxLength(100);
+            builder.Property(x => x.Address2).HasMaxLength(100);
+
+            builder
+                .Property(p => p.Iso2)
+                .HasColumnType("char(2)")
+                .HasDefaultValue("US")
+                .HasMaxLength(2);
+
+            builder.Property(p => p.ProvinceState)
+                .HasColumnType("varchar(3)")
+                .HasMaxLength(3);
+
+            builder
+                .Property(p => p.City)
+                .HasMaxLength(200);
+
+            builder
+                .HasOne(t => t.User)
+                .WithOne(x => x.Person)
+                .HasForeignKey<Person>(b => b.Id)
+                .OnDelete(DeleteBehavior.Cascade);
+
+
+            builder.HasMany(x => x.OrganizationPeople)
+                .WithOne(x => x.Person)
+                .HasForeignKey(x => x.PersonId);
+
+            builder.HasOne(x => x.Lead)
+                .WithOne(x => x.Person)
+                .HasForeignKey<Lead>(x => x.PersonId)
+                .IsRequired(false);
+
+            builder.HasMany(x => x.PayoutIntents)
+                .WithOne(x => x.Person)
+                .HasForeignKey(x => x.PersonId)
+                .IsRequired(true);
+
+            AddAuditProperties(builder);
         }
     }
 }

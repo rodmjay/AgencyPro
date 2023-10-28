@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using AgencyPro.BuyerAccounts.Entities;
 using AgencyPro.Cards.Entities;
 using AgencyPro.Common.Data.Bases;
 using AgencyPro.Contracts.Entities;
@@ -10,14 +11,14 @@ using AgencyPro.Orders.Entities;
 using AgencyPro.OrganizationRoles.Entities;
 using AgencyPro.Organizations.Entities;
 using AgencyPro.People.Entities;
+using AgencyPro.Projects.Entities;
 using AgencyPro.Proposals.Entities;
 using AgencyPro.Retainers.Entities;
 using AgencyPro.Roles.Interfaces;
 using AgencyPro.TimeEntries.Entities;
-using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace AgencyPro.Roles.Models
+namespace AgencyPro.Roles.Entities
 {
     public class Customer : AuditableEntity<Customer>, ICustomer
     {
@@ -53,7 +54,29 @@ namespace AgencyPro.Roles.Models
 
         public override void Configure(EntityTypeBuilder<Customer> builder)
         {
-            throw new NotImplementedException();
+            builder
+                .HasOne(x => x.Person)
+                .WithOne(x => x.Customer);
+
+            builder
+                .HasOne(x => x.OrganizationMarketer)
+                .WithMany(x => x.Customers)
+                .HasForeignKey(x => new
+                {
+                    x.MarketerOrganizationId,
+                    x.MarketerId
+                });
+
+            builder.HasMany(x => x.OrganizationCustomers)
+                .WithOne(x => x.Customer)
+                .HasForeignKey(x => x.CustomerId)
+                .IsRequired();
+
+            builder.HasOne(x => x.BuyerAccount)
+                .WithOne(x => x.Customer)
+                .HasForeignKey<IndividualBuyerAccount>(x => x.Id);
+
+            AddAuditProperties(builder);
         }
     }
 }

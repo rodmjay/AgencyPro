@@ -10,7 +10,7 @@ using AgencyPro.Roles.Interfaces;
 using AgencyPro.TimeEntries.Entities;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace AgencyPro.Roles.Models
+namespace AgencyPro.Roles.Entities
 {
     public class Recruiter : BaseEntity<Recruiter>, IRecruiter
     {
@@ -28,7 +28,9 @@ namespace AgencyPro.Roles.Models
 
         public override void Configure(EntityTypeBuilder<Recruiter> builder)
         {
-            throw new NotImplementedException();
+            builder
+                .HasOne(x => x.Person)
+                .WithOne(x => x.Recruiter);
         }
     }
 }

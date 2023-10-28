@@ -52,7 +52,34 @@ namespace AgencyPro.OrganizationPeople.Entities
 
         public override void Configure(EntityTypeBuilder<OrganizationPerson> builder)
         {
-            throw new NotImplementedException();
+            builder
+                .HasKey(x => new {x.OrganizationId, x.PersonId});
+
+            builder.HasQueryFilter(x => x.IsDeleted == false);
+            builder.Property(u => u.ConcurrencyStamp).IsConcurrencyToken();
+
+            builder.HasMany(x => x.Payouts)
+                .WithOne(x => x.OrganizationPerson)
+                .HasForeignKey(x => new
+                {
+                    x.OrganizationId,
+                    x.PersonId
+                }).IsRequired();
+
+
+            builder
+                .HasOne(x => x.Person)
+                .WithMany(x => x.OrganizationPeople)
+                .HasForeignKey(x => x.PersonId)
+                .IsRequired();
+
+            builder
+                .HasOne(x => x.Organization)
+                .WithMany(x => x.OrganizationPeople)
+                .HasForeignKey(x => x.OrganizationId)
+                .IsRequired();
+
+            AddAuditProperties(builder);
         }
     }
 }

@@ -31,7 +31,21 @@ namespace AgencyPro.PaymentIntents.Entities
         public bool IsDeleted { get; set; }
         public override void Configure(EntityTypeBuilder<StripePaymentIntent> builder)
         {
-            throw new NotImplementedException();
+            builder.HasKey(x => x.Id);
+            builder.Property(x => x.Id).IsRequired();
+
+            builder.HasQueryFilter(x => x.IsDeleted == false);
+
+            builder.HasMany(x => x.Charges)
+                .WithOne(x => x.PaymentIntent)
+                .HasForeignKey(x => x.PaymentIntentId);
+
+            builder.HasOne(x => x.StripeInvoice)
+                .WithOne(x => x.PaymentIntent)
+                .HasForeignKey<StripePaymentIntent>(x => x.InvoiceId);
+
+
+            AddAuditProperties(builder);
         }
     }
 }

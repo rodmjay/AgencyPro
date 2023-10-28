@@ -7,6 +7,7 @@ using AgencyPro.Leads.Entities;
 using AgencyPro.OrganizationPeople.Entities;
 using AgencyPro.People.Entities;
 using AgencyPro.Transfers.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AgencyPro.BonusIntents.Entities
@@ -39,7 +40,29 @@ namespace AgencyPro.BonusIntents.Entities
 
         public override void Configure(EntityTypeBuilder<IndividualBonusIntent> builder)
         {
-            throw new NotImplementedException();
+            // id properties
+            builder.HasKey(x => x.Id);
+            builder.Property(x => x.Id).HasDefaultValueSql("NEWID()");
+
+            builder.HasOne(x => x.Person)
+                .WithMany(x => x.BonusIntents)
+                .HasForeignKey(x => x.PersonId)
+                .IsRequired();
+
+            builder.HasOne(x => x.OrganizationPerson)
+                .WithMany(x => x.BonusIntents)
+                .HasForeignKey(x => new
+                {
+                    x.OrganizationId,
+                    x.PersonId
+                });
+
+            builder.HasOne(x => x.BonusTransfer)
+                .WithMany(x => x.IndividualBonusIntents)
+                .HasForeignKey(x => x.TransferId)
+                .IsRequired(false);
+
+            AddAuditProperties(builder);
         }
     }
 }

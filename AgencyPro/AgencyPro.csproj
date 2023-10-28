@@ -49,6 +49,7 @@
 	  <Folder Include="FinancialAccounts\Services\" />
 	  <Folder Include="People\Extensions\" />
 	  <Folder Include="People\Projections\" />
+	  <Folder Include="Plans\Models\" />
 	  <Folder Include="Roles\Services\" />
 	  <Folder Include="Contracts\Projections\" />
 	  <Folder Include="Organizations\Extensions\" />
@@ -154,6 +155,10 @@
 	  <Folder Include="Transactions\Models\" />
 	  <Folder Include="Transactions\Projections\" />
 	  <Folder Include="Transactions\Services\" />
+	  <Folder Include="Plans\Enums\" />
+	  <Folder Include="Plans\Extensions\" />
+	  <Folder Include="Plans\Projections\" />
+	  <Folder Include="Plans\Services\" />
 	  <Folder Include="_Template\Entities\" />
 	  <Folder Include="_Template\Extensions\" />
 	  <Folder Include="_Template\Models\" />

@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AgencyPro.Charges.Entities
 {
-    public class StripeCharge : BaseEntity<StripeCharge>, IStripeCharge
+    public class StripeCharge : AuditableEntity<StripeCharge>, IStripeCharge
     {
         public string Id { get; set; }
         public bool Disputed { get; set; }
@@ -50,14 +50,32 @@ namespace AgencyPro.Charges.Entities
        public string OutcomeNetworkStatus { get; set; }
        public string ReceiptNumber { get; set; }
        public decimal Amount { get; set; }
-       public DateTimeOffset Created { get; set; }
-       public DateTimeOffset Updated { get; set; }
+     
 
        public ProjectRetainerIntent RetainerIntent { get; set; }
        public Guid? ProjectId { get; set; }
        public override void Configure(EntityTypeBuilder<StripeCharge> builder)
        {
-           throw new NotImplementedException();
-       }
+           builder.HasKey(x => x.Id);
+           builder.Property(x => x.Id).IsRequired();
+
+           builder.HasQueryFilter(x => x.IsDeleted == false);
+
+           builder.HasOne(x => x.Destination)
+               .WithMany(x => x.DestinationCharges)
+               .HasForeignKey(x => x.DestinationId);
+
+           builder.HasOne(x => x.RetainerIntent)
+               .WithMany(x => x.Credits)
+               .HasForeignKey(x => x.ProjectId)
+               .IsRequired(false);
+
+
+           builder.HasOne(x => x.Customer)
+               .WithMany(x => x.Charges)
+               .HasForeignKey(x => x.CustomerId);
+
+           AddAuditProperties(builder);
+        }
     }
 }

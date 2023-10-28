@@ -1,6 +1,7 @@
 ﻿using System;
 using AgencyPro.Common.Data.Bases;
 using AgencyPro.Users.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AgencyPro.ExceptionLog
@@ -19,7 +20,29 @@ namespace AgencyPro.ExceptionLog
         public virtual User User { get; set; }
         public override void Configure(EntityTypeBuilder<ExceptionLog> builder)
         {
-            throw new NotImplementedException();
+            builder
+                .Property(e => e.Id).ValueGeneratedOnAdd();
+
+            builder
+                .Property(s => s.Created)
+                .HasDefaultValueSql("SYSDATETIMEOFFSET()");
+
+            builder
+                .Property(p => p.Message)
+                .IsRequired()
+                .HasMaxLength(800);
+
+            builder
+                .Property(p => p.Source)
+                .HasMaxLength(400);
+
+            builder
+                .Property(p => p.RequestUri)
+                .HasMaxLength(200);
+
+            builder
+                .Property(p => p.Method)
+                .HasMaxLength(20);
         }
     }
 }

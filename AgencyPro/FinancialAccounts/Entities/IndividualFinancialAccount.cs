@@ -16,7 +16,17 @@ namespace AgencyPro.FinancialAccounts.Entities
         public Person Person { get; set; }
         public override void Configure(EntityTypeBuilder<IndividualFinancialAccount> builder)
         {
-            throw new NotImplementedException();
+            builder.HasOne(x => x.Person)
+                .WithOne(x => x.IndividualFinancialAccount)
+                .HasForeignKey<IndividualFinancialAccount>(x => x.Id)
+                .IsRequired();
+
+            builder.HasOne(x => x.FinancialAccount)
+                .WithOne(x => x.IndividualFinancialAccount)
+                .HasForeignKey<IndividualFinancialAccount>(x => x.FinancialAccountId)
+                .IsRequired();
+
+            AddAuditProperties(builder);
         }
     }
 }

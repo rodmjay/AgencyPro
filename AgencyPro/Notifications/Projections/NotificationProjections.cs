@@ -8,8 +8,8 @@ namespace AgencyPro.Notifications.Projections
     {
         public NotificationProjections()
         {
-            CreateMap<Notification, NotificationOutput>()
-                .IncludeAllDerived();
+            //CreateMap<Notification<>, NotificationOutput>()
+            //    .IncludeAllDerived();
         }
     }
 }

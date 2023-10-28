@@ -1,5 +1,5 @@
 using AgencyPro.Common.Services.Interfaces;
-using AgencyPro.Roles.Models;
+using AgencyPro.Roles.Entities;
 using AgencyPro.Roles.ViewModels.Recruiters;
 
 namespace AgencyPro.Roles.Interfaces

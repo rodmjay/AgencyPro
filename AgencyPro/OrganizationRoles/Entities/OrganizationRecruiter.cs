@@ -7,8 +7,9 @@ using AgencyPro.OrganizationPeople.Entities;
 using AgencyPro.OrganizationRoles.Interfaces;
 using AgencyPro.Organizations.Entities;
 using AgencyPro.RecruitingOrganizations.Entities;
-using AgencyPro.Roles.Models;
+using AgencyPro.Roles.Entities;
 using AgencyPro.TimeEntries.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AgencyPro.OrganizationRoles.Entities
@@ -44,7 +45,55 @@ namespace AgencyPro.OrganizationRoles.Entities
 
         public override void Configure(EntityTypeBuilder<OrganizationRecruiter> builder)
         {
-            throw new NotImplementedException();
+            builder
+                .HasKey(x => new
+                {
+                    x.OrganizationId,
+                    x.RecruiterId
+                });
+            builder.HasQueryFilter(x => x.IsDeleted == false);
+
+            builder.Property(x => x.RecruiterStream).HasColumnType("Money");
+            builder.Property(u => u.ConcurrencyStamp).IsConcurrencyToken();
+
+            builder
+                .HasMany(x => x.Contractors)
+                .WithOne(x => x.OrganizationRecruiter)
+                .HasForeignKey(x => new
+                {
+                    x.RecruiterOrganizationId,
+                    x.RecruiterId
+                })
+                .IsRequired();
+
+            builder
+                .HasMany(x => x.Contracts)
+                .WithOne(x => x.OrganizationRecruiter)
+                .HasForeignKey(x => new
+                {
+                    x.RecruiterOrganizationId,
+                    x.RecruiterId
+                });
+
+            builder
+                .HasMany(x => x.Candidates)
+                .WithOne(x => x.OrganizationRecruiter)
+                .HasForeignKey(x => new
+                {
+                    x.RecruiterOrganizationId,
+                    x.RecruiterId
+                });
+
+            builder
+                .HasOne(x => x.OrganizationPerson)
+                .WithOne(x => x.Recruiter).HasForeignKey<OrganizationRecruiter>(x => new
+                {
+                    x.OrganizationId,
+                    x.RecruiterId
+                })
+                .OnDelete(DeleteBehavior.Cascade);
+
+            AddAuditProperties(builder);
         }
     }
 }

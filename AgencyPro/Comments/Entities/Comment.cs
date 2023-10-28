@@ -8,6 +8,7 @@ using AgencyPro.Leads.Entities;
 using AgencyPro.OrganizationPeople.Entities;
 using AgencyPro.Projects.Entities;
 using AgencyPro.Stories.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AgencyPro.Comments.Entities
@@ -55,7 +56,53 @@ namespace AgencyPro.Comments.Entities
 
         public override void Configure(EntityTypeBuilder<Comment> builder)
         {
-            throw new NotImplementedException();
+            builder.HasKey(x => x.Id);
+
+            builder.HasOne(x => x.Story).WithMany(x => x.Comments)
+                .HasForeignKey(x => x.StoryId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne(x => x.Contract).WithMany(x => x.Comments)
+                .HasForeignKey(x => x.ContractId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne(x => x.Project).WithMany(x => x.Comments)
+                .HasForeignKey(x => x.ProjectId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne(x => x.Lead).WithMany(x => x.Comments)
+                .HasForeignKey(x => x.LeadId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne(x => x.Candidate).WithMany(x => x.Comments)
+                .HasForeignKey(x => x.CandidateId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne(x => x.CustomerAccount).WithMany(x => x.Comments)
+                .HasForeignKey(x => new
+                {
+                    x.CustomerOrganizationId,
+                    x.CustomerId,
+                    x.AccountManagerOrganizationId,
+                    x.AccountManagerId
+                }).IsRequired(false)
+                .OnDelete(DeleteBehavior.Cascade);
+
+
+            builder.HasOne(x => x.Creator).WithMany(x => x.Comments)
+                .HasForeignKey(x => new
+                {
+                    x.OrganizationId,
+                    x.CreatedById
+                }).IsRequired(true)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasQueryFilter(x => !x.IsDeleted);
         }
     }
 }

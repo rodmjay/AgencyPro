@@ -5,7 +5,7 @@ using AgencyPro.Notifications.Interfaces;
 
 namespace AgencyPro.Notifications.Entities
 {
-    public abstract class Notification : BaseEntity<Notification>, INotification
+    public abstract class Notification<T> : BaseEntity<T>, INotification where T : class
     {
         public Guid Id { get; set; }
         public Guid OrganizationId { get; set; }

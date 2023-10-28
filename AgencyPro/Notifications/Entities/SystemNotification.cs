@@ -2,11 +2,11 @@
 
 namespace AgencyPro.Notifications.Entities
 {
-    public class SystemNotification : Notification
+    public class SystemNotification : Notification<SystemNotification>
     {
-        public override void Configure(EntityTypeBuilder<Notification> builder)
+        public override void Configure(EntityTypeBuilder<SystemNotification> builder)
         {
-            throw new System.NotImplementedException();
+            
         }
     }
 }

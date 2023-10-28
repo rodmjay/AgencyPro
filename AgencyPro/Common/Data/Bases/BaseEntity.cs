@@ -4,6 +4,7 @@
 
 #endregion
 
+using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.Serialization;
 using AgencyPro.Common.Data.Enums;
@@ -22,4 +23,23 @@ public abstract class BaseEntity : ValidatableModel, IObjectState
 public abstract class BaseEntity<T> : BaseEntity, IEntityTypeConfiguration<T> where T : class
 {
     public abstract void Configure(EntityTypeBuilder<T> builder);
+
+    protected void AddAuditProperties(EntityTypeBuilder entity, bool addModifiers = false)
+    {
+        entity
+            .Property<DateTimeOffset>("Created")
+            .HasDefaultValueSql("SYSDATETIMEOFFSET()");
+
+        entity
+            .Property<DateTimeOffset>("Updated")
+            .HasDefaultValueSql("SYSDATETIMEOFFSET()");
+
+        if (!addModifiers) return;
+
+        entity
+            .Property<Guid>("CreatedById");
+
+        entity
+            .Property<Guid>("UpdatedById");
+    }
 }

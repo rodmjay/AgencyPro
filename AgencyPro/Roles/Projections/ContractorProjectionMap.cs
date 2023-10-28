@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using AgencyPro.Common.Extensions;
 using AgencyPro.OrganizationRoles.Models.OrganizationContractors;
-using AgencyPro.Roles.Models;
+using AgencyPro.Roles.Entities;
 using AgencyPro.Roles.ViewModels.Contractors;
 using AutoMapper;
 

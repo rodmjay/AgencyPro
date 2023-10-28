@@ -18,7 +18,9 @@ namespace AgencyPro.Skills.Entities
         public ICollection<ContractorSkill> ContractorSkills { get; set; }
         public override void Configure(EntityTypeBuilder<Skill> builder)
         {
-            throw new NotImplementedException();
+            builder.HasKey(x => x.Id);
+
+            AddAuditProperties(builder);
         }
     }
 }

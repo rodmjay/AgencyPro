@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-using AgencyPro.Roles.Models;
+using AgencyPro.Roles.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace AgencyPro.Roles.Extensions

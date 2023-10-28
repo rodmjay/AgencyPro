@@ -19,7 +19,13 @@ namespace AgencyPro.Levels.Entities
 
         public override void Configure(EntityTypeBuilder<Level> builder)
         {
-            throw new System.NotImplementedException();
+            builder.HasKey(x => x.Id);
+            builder.Property(x => x.Id).ValueGeneratedOnAdd();
+
+
+            builder.HasOne(x => x.Position)
+                .WithMany(x => x.Levels)
+                .HasForeignKey(x => x.PositionId);
         }
     }
 }

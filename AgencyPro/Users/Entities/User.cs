@@ -9,6 +9,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.Serialization;
 using AgencyPro.Common.Data.Enums;
 using AgencyPro.Common.Data.Interfaces;
+using AgencyPro.Notifications.Entities;
+using AgencyPro.People.Entities;
 using AgencyPro.Users.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -36,6 +38,8 @@ public class User : IdentityUser<int>, IEntityTypeConfiguration<User>, IObjectSt
     public ICollection<UserLogin> UserLogins { get; set; }
     public ICollection<UserClaim> UserClaims { get; set; }
 
+    public Person Person { get; set; }
+    public virtual ICollection<UserNotification> Notifications { get; set; }
     public void Configure(EntityTypeBuilder<User> builder)
     {
         builder.HasKey(x => x.Id);
